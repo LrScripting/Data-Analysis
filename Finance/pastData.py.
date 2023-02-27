@@ -1,0 +1,34 @@
+# data analysis command line tool which collects close price data from a currency pair and window specified by the user
+# It does this by creating an object for todays data then using dateutil relative time to create date objects for the last N days
+# the data objects are fed to the forex_python API which retrieves the close price for the currency pair on that day and adds it to an array
+# current the function returns an average of the data but will be used in Nipper bot project to calculate RSI and Exponential moving average
+
+import ccxt
+from datetime import datetime
+from forex_python.converter import get_rate
+import dateutil.relativedelta
+
+def collect(c1, c2, window):
+    arr = []
+    currentTime = datetime.now()
+    l = list(str(currentTime))
+    tdate = "".join(l[:10])
+    d = datetime.strptime(tdate, "%Y-%m-%d")
+    i = window
+    while i > 0:
+            
+        d2 = d - dateutil.relativedelta.relativedelta(days=i)
+        price = get_rate(c1, c2, d2.date())
+        arr.append(price)
+        i-=1
+    
+    print(arr)
+    return sum(arr) / len(arr)
+
+
+
+
+c1 = input("first currency? use the code ... eg GBP USD EUR etc\n")
+c2 = input("second currency?\n")
+window = int(input("how many days do you want to include in the dataset?\n"))
+print(collect(c1, c2, window))
